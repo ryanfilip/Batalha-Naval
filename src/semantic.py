@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 semantic.py  —  Ações Semânticas (Batalha Naval PLY)
 ─────────────────────────────────────────────────────
@@ -38,9 +36,6 @@ from .game_engine import (
     display_side_by_side,
 )
 
-# ════════════════════════════════════════════════════════════════
-# Helpers internos
-# ════════════════════════════════════════════════════════════════
 
 def _prompt_setup() -> None:
     """
@@ -50,7 +45,6 @@ def _prompt_setup() -> None:
     player = G.setup_player()
 
     if player is None:
-        # Todos os jogadores posicionaram → inicia a batalha
         G.start_play()
         print("\n  ✅ Posicionamento concluído! A batalha começa agora.")
         print(f"  🎯 Turno de {G.cur}  →  ATIRAR <COORD>   (ex: ATIRAR B4)")
@@ -62,7 +56,6 @@ def _prompt_setup() -> None:
     cfg  = SHIPS_CONFIG[ship]
     kw   = TOKEN_TO_KW[ship]
 
-    # Em PVP, avisa para passar o computador ao trocar de jogador
     if G.gtype == 'PVP' and G.ss_idx == 0 and G.sp_idx > 0:
         print(f"\n  ─────────── Passe o computador para {player} ───────────")
 
@@ -92,7 +85,7 @@ def _show_result(player: str, coord: str, result: str,
             print(f"     Sequência de {G.consec} acerto(s) encerrada.")
         G.consec = 0
 
-    else:  # HIT
+    else:  
         if sunk:
             label = SHIPS_CONFIG[sunk]['label']
             print(f"  🔥 ACERTO! {coord} → {label} AFUNDADO!")
@@ -135,7 +128,7 @@ def _cpu_turn() -> None:
 
         if result == 'MISS':
             print(f"  🤖 CPU → {coord}: ÁGUA")
-            G.switch()          # CPU errou → passa a vez
+            G.switch()    
 
         elif result == 'HIT':
             if sunk:
@@ -151,14 +144,13 @@ def _cpu_turn() -> None:
                 print(f"     Use REINICIAR para tentar novamente.")
                 return
 
-            # Acerto garante novo tiro da CPU (Sequência); loop continua
 
     if G.phase == 'PLAYING' and G.cur != 'CPU':
         print(f"\n  → Turno de {G.cur}  →  ATIRAR <COORD>")
 
 
 # ════════════════════════════════════════════════════════════════
-# Ações Semânticas (chamadas pelo parser)
+# Ações Semânticas 
 # ════════════════════════════════════════════════════════════════
 
 def sem_start(gtype: str) -> None:
@@ -249,7 +241,7 @@ def sem_random() -> None:
         if not placed:
             print(f"  ❌ Não foi possível posicionar {SHIPS_CONFIG[ship]['label']}")
 
-    # Marca todos os navios como posicionados e avança ao próximo jogador
+
     G.sp_idx += 1
     G.ss_idx  = 0
     _prompt_setup()
@@ -278,7 +270,7 @@ def sem_shoot(coord: str) -> None:
         return
 
     current = G.cur
-    target  = G.opponent(current)        # sempre o inimigo, mesmo no SOLO
+    target  = G.opponent(current)    
     board   = G.boards[target]
 
     result, sunk = board.receive_shot(coord)
@@ -293,20 +285,17 @@ def sem_shoot(coord: str) -> None:
         _show_both_boards(current)
         return
 
-    # ── Controle de turnos (Sequência de Acertos) ─────────────
     if result == 'MISS':
         if G.gtype != 'SOLO':
             G.switch()
             print(f"  → Turno de {G.cur}.")
 
-    else:  # HIT — acerto sempre garante novo tiro
+    else:  
         G.consec += 1
         print(f"  🎯 Sequência: {G.consec} acerto(s). Continue atirando!")
 
-    # Exibe os dois tabuleiros atualizados após cada tiro
     _show_both_boards(current)
 
-    # CPU joga depois de exibir o resultado do jogador
     if G.phase == 'PLAYING' and G.cur == 'CPU':
         _cpu_turn()
         _show_both_boards(G.opponent('CPU'))

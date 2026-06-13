@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 parser_grammar.py  —  Analisador Sintático PLY (Batalha Naval)
 ───────────────────────────────────────────────────────────────
@@ -72,11 +70,8 @@ Tabela de Produções × Ações Semânticas:
 
 import sys
 import ply.yacc as yacc
+from .lexer import tokens, lexer 
 
-# Importa tokens do lexer (PLY exige que `tokens` esteja no namespace deste módulo)
-from .lexer import tokens, lexer  # noqa: F401  (tokens usado implicitamente pelo PLY)
-
-# Importa ações semânticas e estado global
 from .semantic import (
     sem_start, sem_place, sem_random,
     sem_shoot, sem_board, sem_help,
@@ -87,7 +82,6 @@ from .game_engine import G
 # Produções Gramaticais + Ações Semânticas
 # ════════════════════════════════════════════════════════════════
 
-# ── Produção 1-8: comando raiz ────────────────────────────────
 
 def p_command(p):
     '''command : shoot_cmd
@@ -101,64 +95,26 @@ def p_command(p):
     p[0] = p[1]
 
 
-# ── Produção 9: ATIRAR <coord> ────────────────────────────────
 
 def p_shoot_cmd(p):
     '''shoot_cmd : SHOOT COORDINATE'''
-    #
-    # Árvore de derivação para "ATIRAR B4":
-    #
-    #   command
-    #   └── shoot_cmd
-    #       ├── SHOOT       {p[1] = 'SHOOT'}
-    #       └── COORDINATE  {p[2] = 'B4'}
-    #
-    # Ação semântica: dispara na coordenada p[2]
     p[0] = ('shoot', p[2])
     sem_shoot(p[2])
 
 
-# ── Produção 10: POSICIONAR <navio> <coord> <orientação> ─────
-
 def p_place_cmd(p):
     '''place_cmd : PLACE ship_type COORDINATE orientation'''
-    #
-    # Árvore de derivação para "POSICIONAR PORTA_AVIOES A1 HORIZONTAL":
-    #
-    #   command
-    #   └── place_cmd
-    #       ├── PLACE          {p[1] = 'PLACE'}
-    #       ├── ship_type      {p[2] = 'CARRIER'}
-    #       │   └── CARRIER    ('PORTA_AVIOES' → token CARRIER)
-    #       ├── COORDINATE     {p[3] = 'A1'}
-    #       └── orientation    {p[4] = 'HORIZONTAL'}
-    #           └── HORIZONTAL
-    #
-    # Ação semântica: posiciona navio p[2] em p[3] com orientação p[4]
     p[0] = ('place', p[2], p[3], p[4])
     sem_place(p[2], p[3], p[4])
 
 
-# ── Produção 11: INICIAR <tipo> ───────────────────────────────
 
 def p_start_cmd(p):
     '''start_cmd : START player_mode'''
-    #
-    # Árvore de derivação para "INICIAR PVC":
-    #
-    #   command
-    #   └── start_cmd
-    #       ├── START        {p[1] = 'START'}
-    #       └── player_mode  {p[2] = 'PVC'}
-    #           └── PVC
-    #
-    # Ação semântica: inicializa jogo com tipo p[2]
-    # (modo Sequência de Acertos é o único/padrão — ver semantic.py)
     p[0] = ('start', p[2])
     sem_start(p[2])
 
 
-# ── Produções 12-16: comandos simples ────────────────────────
 
 def p_quit_cmd(p):
     '''quit_cmd : QUIT'''
@@ -189,7 +145,6 @@ def p_restart_cmd(p):
     print("  → INICIAR <PVP|PVC|SOLO>\n")
 
 
-# ── Produções 17-21: não-terminal ship_type ───────────────────
 
 def p_ship_type(p):
     '''ship_type : CARRIER
@@ -197,29 +152,23 @@ def p_ship_type(p):
                  | DESTROYER
                  | SUBMARINE
                  | PATROL'''
-    # Propaga o tipo do token como valor semântico
-    # ex: usuário digita PORTA_AVIOES → token CARRIER → p[0] = 'CARRIER'
     p[0] = p[1]
 
 
-# ── Produções 22-23: não-terminal orientation ─────────────────
 
 def p_orientation(p):
     '''orientation : HORIZONTAL
                    | VERTICAL'''
-    p[0] = p[1]   # 'HORIZONTAL' | 'VERTICAL'
+    p[0] = p[1]  
 
-
-# ── Produções 24-26: não-terminal player_mode ─────────────────
 
 def p_player_mode(p):
     '''player_mode : PVP
                    | PVC
                    | SOLO'''
-    p[0] = p[1]   # 'PVP' | 'PVC' | 'SOLO'
+    p[0] = p[1] 
 
 
-# ── Tratamento de erro sintático ──────────────────────────────
 
 def p_error(p):
     if p:
@@ -230,7 +179,4 @@ def p_error(p):
     print("  → Digite AJUDA para ver os comandos disponíveis.\n")
 
 
-# ════════════════════════════════════════════════════════════════
-# Instância do parser
-# ════════════════════════════════════════════════════════════════
 parser = yacc.yacc(debug=False, write_tables=False)

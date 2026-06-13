@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 lexer.py  —  Analisador Léxico PLY (Batalha Naval)
 ───────────────────────────────────────────────────
@@ -43,7 +41,7 @@ import re
 import ply.lex as lex
 
 # ════════════════════════════════════════════════════════════════
-# Palavras reservadas: texto digitado (maiúsculo) → tipo do token
+# Palavras reservadas: texto digitado (maiúsculo) -> tipo do token
 # ════════════════════════════════════════════════════════════════
 
 RESERVED: dict[str, str] = {
@@ -72,7 +70,6 @@ RESERVED: dict[str, str] = {
     'REINICIAR':    'RESTART',
 }
 
-# Lista de tokens exigida pelo PLY (união de reservados + especiais)
 tokens: list[str] = list(set(RESERVED.values())) + ['COORDINATE', 'ID']
 
 # ════════════════════════════════════════════════════════════════
@@ -94,27 +91,23 @@ def t_ID(t):
     """
     upper = t.value.upper()
 
-    # 1) Verifica se é coordenada válida: [A-J] seguido de 1-10
     m = re.match(r'^([A-J])(10|[1-9])$', upper)
     if m:
         t.type  = 'COORDINATE'
-        t.value = upper         # normaliza para maiúsculo
+        t.value = upper       
         return t
 
-    # 2) Verifica palavras reservadas
     tok_type = RESERVED.get(upper)
     if tok_type:
         t.type  = tok_type
-        t.value = tok_type      # valor = tipo (facilita ações semânticas)
+        t.value = tok_type      
     else:
         t.type  = 'ID'
         t.value = upper
     return t
 
-# Ignorar espaços, tabulações e retornos de carro
 t_ignore = ' \t\r'
 
-# Comentários de linha (# texto)
 t_ignore_COMMENT = r'\#[^\n]*'
 
 def t_newline(t):
@@ -127,7 +120,4 @@ def t_error(t):
         print(f"  [ERRO LÉXICO] Símbolo inválido: '{ch}' (linha {t.lexer.lineno})")
     t.lexer.skip(1)
 
-# ════════════════════════════════════════════════════════════════
-# Instância do lexer
-# ════════════════════════════════════════════════════════════════
 lexer = lex.lex()

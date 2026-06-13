@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 main.py  —  Ponto de Entrada (Batalha Naval PLY)
 ─────────────────────────────────────────────────
@@ -38,7 +36,6 @@ def main() -> None:
 
     while True:
         try:
-            # Prompt dinâmico conforme a fase do jogo
             if   G.phase == 'IDLE':    prompt = "batalha> "
             elif G.phase == 'SETUP':   prompt = f"setup[{G.setup_player() or '?'}]> "
             elif G.phase == 'PLAYING': prompt = f"[{G.cur}]> "
@@ -47,8 +44,6 @@ def main() -> None:
             line = input(prompt).strip()
             if not line:
                 continue
-
-            # ── Análise léxica + sintática + semântica ────────
             parser.parse(line, lexer=lexer)
 
         except KeyboardInterrupt:

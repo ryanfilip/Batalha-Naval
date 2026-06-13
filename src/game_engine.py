@@ -23,10 +23,6 @@ ATUALIZAÇÕES:
 
 import random
 
-# ════════════════════════════════════════════════════════════════
-# Configuração dos navios
-# ════════════════════════════════════════════════════════════════
-# Chave = tipo do token PLY  |  size = nº de células  |  sym = símbolo na grade
 
 SHIPS_CONFIG: dict[str, dict] = {
     'CARRIER':    {'size': 5, 'sym': 'P', 'label': 'Porta-Aviões'},
@@ -59,14 +55,10 @@ class Board:
     COLS = 'ABCDEFGHIJ'
 
     def __init__(self):
-        # grade real (navios + tiros recebidos)
         self.grid: list[list[str]]  = [['~'] * 10 for _ in range(10)]
-        # tiros que este jogador deu no adversário
         self.shots: list[list[str]] = [['~'] * 10 for _ in range(10)]
-        # ship_key → lista de células ainda vivas [(row, col), ...]
         self.ships: dict[str, list] = {}
 
-    # ── Conversão de coordenadas ──────────────────────────────
 
     @staticmethod
     def coord_to_idx(coord: str) -> tuple[int, int]:
@@ -77,7 +69,6 @@ class Board:
     def idx_to_coord(r: int, c: int) -> str:
         return chr(ord('A') + c) + str(r + 1)
 
-    # ── Posicionamento ────────────────────────────────────────
 
     def place(self, ship_key: str, coord: str, orientation: str) -> tuple[bool, str]:
         """
@@ -124,23 +115,20 @@ class Board:
             self.grid[r][c] = self.shots[r][c] = 'O'
             return 'MISS', None
 
-        # Acerto
         self.grid[r][c] = self.shots[r][c] = 'X'
         sunk = None
         for sk, cells in self.ships.items():
             if (r, c) in cells:
                 cells.remove((r, c))
                 if not cells:
-                    sunk = sk       # navio completamente destruído
+                    sunk = sk    
                 break
         return 'HIT', sunk
 
     def all_sunk(self) -> bool:
         return all(not cells for cells in self.ships.values())
 
-    # ── Exibição (modo texto simples) ─────────────────────────
 
-# DEPOIS:
     def display(self, hide_ships: bool = False, title: str = '') -> None:
         if title:
             print(f"\n  ── {title} ──")
@@ -158,19 +146,18 @@ class Board:
     def display_shots(self, title: str = '') -> None:
         if title:
             print(f"\n  ── {title} ──")
-        print("       " + " ".join(self.COLS))   # espaço simples entre colunas
+        print("       " + " ".join(self.COLS))  
         print("     ╔" + "═" * 21 + "╗")
         for r in range(10):
             print(f"  {r + 1:2d} ║ {' '.join(self.shots[r])} ║")
         print("     ╚" + "═" * 21 + "╝")
 
-    # ── Exibição (modo lado a lado) ───────────────────────────
 
     def render_lines(self, hide_ships: bool = False, title: str = '') -> list[str]:
         """Renderiza a grade real como lista de strings (para exibição lado a lado)."""
         lines = []
         lines.append(f"{'── ' + title + ' ──':^27}" if title else ' ' * 27)
-        lines.append(f"      {' '.join(self.COLS):<21}")    # 6 + 21 = 27 chars
+        lines.append(f"      {' '.join(self.COLS):<21}")    
         lines.append(f"    ┌{'─' * 21}┐")
         for r in range(10):
             row = [
@@ -233,8 +220,6 @@ class GameState:
         self.players = {
             'PVP':  ['JOGADOR1', 'JOGADOR2'],
             'PVC':  ['JOGADOR',  'CPU'],
-            # SOLO também tem uma grade "CPU" para o jogador atirar,
-            # mas a CPU nunca joga de volta (ver setup_player / _cpu_turn)
             'SOLO': ['JOGADOR',  'CPU'],
         }[gtype]
         self.boards = {p: Board() for p in self.players}
@@ -262,7 +247,7 @@ class GameState:
         """Retorna o próximo jogador humano a posicionar, ou None se todos terminaram."""
         while self.sp_idx < len(self.players):
             p = self.players[self.sp_idx]
-            if p == 'CPU':              # CPU já posicionou automaticamente
+            if p == 'CPU':              
                 self.sp_idx += 1
                 self.ss_idx  = 0
             else:
@@ -281,7 +266,6 @@ class GameState:
             self.sp_idx += 1
             self.ss_idx  = 0
 
-    # ── Jogo helpers ──────────────────────────────────────────
 
     def start_play(self):
         self.phase  = 'PLAYING'
@@ -300,5 +284,4 @@ class GameState:
         self.consec = 0
 
 
-# ── Instância global (compartilhada por lexer, parser e semantic) ──
 G = GameState()

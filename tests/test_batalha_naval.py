@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 tests/test_batalha_naval.py
 ────────────────────────────
@@ -34,7 +32,7 @@ from src.lexer import lexer, RESERVED, tokens
 
 
 # ════════════════════════════════════════════════════════════════
-# Testes do motor do jogo (game_engine.py)
+# Testes game_engine.py
 # ════════════════════════════════════════════════════════════════
 
 class TestBoard(unittest.TestCase):
@@ -42,7 +40,6 @@ class TestBoard(unittest.TestCase):
     def setUp(self):
         self.board = Board()
 
-    # ── Conversão de coordenadas ──────────────────────────────
 
     def test_coord_to_idx_basico(self):
         self.assertEqual(Board.coord_to_idx('A1'),  (0, 0))
@@ -62,19 +59,15 @@ class TestBoard(unittest.TestCase):
                 r, c  = Board.coord_to_idx(coord)
                 self.assertEqual((r, c), (row, col))
 
-    # ── Posicionamento ────────────────────────────────────────
-
     def test_place_horizontal_valido(self):
         ok, _ = self.board.place('CARRIER', 'A1', 'HORIZONTAL')
         self.assertTrue(ok)
-        # Porta-Aviões (tamanho 5) em A1 horizontal: colunas A-E, linha 1
         for c in range(5):
             self.assertEqual(self.board.grid[0][c], 'P')
 
     def test_place_vertical_valido(self):
         ok, _ = self.board.place('PATROL', 'A1', 'VERTICAL')
         self.assertTrue(ok)
-        # Patrulha (tamanho 2) em A1 vertical: coluna A, linhas 1-2
         self.assertEqual(self.board.grid[0][0], 'T')
         self.assertEqual(self.board.grid[1][0], 'T')
 
@@ -95,13 +88,11 @@ class TestBoard(unittest.TestCase):
             self.assertEqual(self.board.grid[r_start + i][c], 'D')
 
     def test_place_fora_dos_limites_horizontal(self):
-        # CARRIER (5) em H1 horizontal sairia da grade (H=7, 7+5>10)
         ok, msg = self.board.place('CARRIER', 'H1', 'HORIZONTAL')
         self.assertFalse(ok)
         self.assertIn("limites", msg)
 
     def test_place_fora_dos_limites_vertical(self):
-        # CARRIER (5) em A8 vertical sairia da grade (8+5>10)
         ok, msg = self.board.place('CARRIER', 'A8', 'VERTICAL')
         self.assertFalse(ok)
         self.assertIn("limites", msg)
@@ -125,7 +116,6 @@ class TestBoard(unittest.TestCase):
             self.assertTrue(ok, f"Falhou ao posicionar {ship}")
         self.assertEqual(len(self.board.ships), 5)
 
-    # ── Tiros ─────────────────────────────────────────────────
 
     def test_shot_miss(self):
         result, sunk = self.board.receive_shot('A1')
@@ -137,18 +127,18 @@ class TestBoard(unittest.TestCase):
         self.board.place('PATROL', 'A1', 'HORIZONTAL')
         result, sunk = self.board.receive_shot('A1')
         self.assertEqual(result, 'HIT')
-        self.assertIsNone(sunk)   # ainda não afundou (tem 2 células)
+        self.assertIsNone(sunk)   
 
     def test_shot_sunk(self):
         self.board.place('PATROL', 'A1', 'HORIZONTAL')
-        self.board.receive_shot('A1')                   # 1ª célula
-        result, sunk = self.board.receive_shot('B1')    # 2ª célula → afunda
+        self.board.receive_shot('A1')                   
+        result, sunk = self.board.receive_shot('B1')    
         self.assertEqual(result, 'HIT')
         self.assertEqual(sunk, 'PATROL')
 
     def test_shot_repeat(self):
-        self.board.receive_shot('A1')                   # primeiro tiro
-        result, _ = self.board.receive_shot('A1')       # repetido
+        self.board.receive_shot('A1')                
+        result, _ = self.board.receive_shot('A1')
         self.assertEqual(result, 'REPEAT')
 
     def test_all_sunk_false(self):
@@ -160,8 +150,6 @@ class TestBoard(unittest.TestCase):
         self.board.receive_shot('A1')
         self.board.receive_shot('B1')
         self.assertTrue(self.board.all_sunk())
-
-    # ── Exibição lado a lado ──────────────────────────────────
 
     def test_render_lines_comprimento(self):
         """Cada linha de render_lines deve ter exatamente 27 chars."""
@@ -245,7 +233,6 @@ class TestGameState(unittest.TestCase):
         self.gs.init('SOLO')
         for _ in range(len(SHIP_ORDER)):
             self.gs.advance()
-        # advance() move sp_idx para CPU; setup_player() pula CPU → None
         self.assertIsNone(self.gs.setup_player())
 
     def test_advance_muda_jogador_pvp(self):
@@ -284,15 +271,12 @@ class TestGameState(unittest.TestCase):
         self.gs.switch()
         self.assertEqual(self.gs.consec, 0)
 
-    # ── Sequência de Acertos ──────────────────────────────────
-
     def test_sequencia_acertos_nao_troca_turno(self):
         """
         Acerto NÃO deve trocar de turno (Sequência de Acertos).
         Verifica que G.cur permanece o mesmo após um HIT.
         """
         self.gs.init('PVP')
-        # Posiciona apenas PATROL na grade de JOGADOR2 para teste
         board = self.gs.boards['JOGADOR2']
         board.place('PATROL', 'A1', 'HORIZONTAL')
         self.gs.start_play()
@@ -300,8 +284,6 @@ class TestGameState(unittest.TestCase):
 
         result, _ = board.receive_shot('A1')
         self.assertEqual(result, 'HIT')
-        # Simulamos que em HIT NÃO chamamos switch()
-        # (a lógica correta de sem_shoot apenas incrementa consec)
         self.gs.consec += 1
         self.assertEqual(self.gs.cur, 'JOGADOR1',
                          "Acerto não deve trocar o turno (Sequência de Acertos)")
@@ -316,7 +298,6 @@ class TestGameState(unittest.TestCase):
 
         result, _ = board.receive_shot('A1')
         self.assertEqual(result, 'MISS')
-        # Simula comportamento de sem_shoot em MISS
         self.gs.switch()
         self.assertEqual(self.gs.cur, 'JOGADOR2')
 
@@ -421,11 +402,6 @@ class TestLexer(unittest.TestCase):
         self.assertNotIn('SEQUENCIA', RESERVED)
         self.assertNotIn('CLASSIC',   RESERVED.values())
         self.assertNotIn('SEQUENCE',  RESERVED.values())
-
-
-# ════════════════════════════════════════════════════════════════
-# Runner
-# ════════════════════════════════════════════════════════════════
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
