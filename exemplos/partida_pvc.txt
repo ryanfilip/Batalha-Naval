@@ -1,0 +1,72 @@
+# ═══════════════════════════════════════════════════════════════
+#  BATALHA NAVAL PLY — Exemplo de Partida Anotada
+#  Arquivo: exemplos/partida_pvc.txt
+#
+#  Modo único: Sequência de Acertos
+#    → Acerto garante novo tiro (atirar_seq → HIT atirar_seq)
+#    → Erro passa a vez        (atirar_seq → MISS)
+#
+#  Para executar: python main.py  (e digitar os comandos abaixo)
+# ═══════════════════════════════════════════════════════════════
+
+# ── 1. Partida contra CPU ────────────────────────────────────────
+
+INICIAR PVC
+
+# Fase de setup: posicionar navios
+POSICIONAR PORTA_AVIOES A1 HORIZONTAL   # P P P P P ~ ~ ~ ~ ~  (linha 1)
+POSICIONAR CORACADO     A3 VERTICAL     # C na coluna A, linhas 3-6
+ALEATORIO                               # DESTROYER, SUBMARINO, PATRULHA → auto
+
+TABULEIRO                               # confere posicionamento
+
+# ── Fase de combate ──────────────────────────────────────────────
+# Sequência de Acertos em ação:
+#   se ATIRAR acerta → atirar_seq → HIT atirar_seq  (continua jogando)
+#   se ATIRAR erra   → atirar_seq → MISS            (CPU joga)
+
+ATIRAR A1    # se acertar, o jogo pede nova coordenada
+ATIRAR B1    # se o anterior acertou, continua a sequência
+ATIRAR C1    # ...
+
+
+# ═══════════════════════════════════════════════════════════════
+#  2. Partida Solo (CPU não atira de volta)
+# ═══════════════════════════════════════════════════════════════
+
+REINICIAR
+
+INICIAR SOLO
+
+# No SOLO o jogador também posiciona seus navios
+# (a grade CPU é gerada automaticamente — ela nunca atira)
+ALEATORIO
+
+TABULEIRO     # grade do JOGADOR (esquerda) | tiros contra CPU (direita)
+
+ATIRAR A1
+ATIRAR B1
+ATIRAR C1
+ATIRAR D1
+ATIRAR E1     # se CPU tinha Porta-Aviões em A1-E1, afundou!
+
+
+# ═══════════════════════════════════════════════════════════════
+#  3. Partida PVP (hot-seat)
+# ═══════════════════════════════════════════════════════════════
+
+REINICIAR
+
+INICIAR PVP
+
+# JOGADOR1 posiciona
+ALEATORIO
+
+# --- passe o computador para JOGADOR2 ---
+ALEATORIO
+
+# Combate — ambos jogam pela Sequência de Acertos
+ATIRAR E5
+ATIRAR F5
+
+SAIR

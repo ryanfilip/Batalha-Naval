@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+parser.out
+parsetab.py
+venv/
+.venv/
+.DS_Store
+Thumbs.db
