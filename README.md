@@ -193,4 +193,6 @@ Este projeto utilizou Claude (Anthropic) como auxílio.
 
 ## 👥 Autores
 
-Trabalho P2 – Compiladores 2026/1
+Ryan Filipe de Mendonça Borge
+Leonardo Takahata Yocogawa
+Cassio Benjamin Maciel
