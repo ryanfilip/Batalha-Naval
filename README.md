@@ -193,6 +193,8 @@ Este projeto utilizou Claude (Anthropic) como auxílio.
 
 ## 👥 Autores
 
-Ryan Filipe de Mendonça Borge
+Ryan Filipe de Mendonça Borges
+
 Leonardo Takahata Yocogawa
+
 Cassio Benjamin Maciel
