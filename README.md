@@ -167,7 +167,7 @@ utilitario  → BOARD | RESTART | QUIT | HELP
 | Árvores de derivação e anotadas | `docs/arvore_derivacao.py` |
 | Tabela de tokens | `docs/tabela_producoes.py` |
 | Tabela de produções × ações semânticas | `docs/tabela_producoes.py` |
-| Gramática da Sessão (elaborada com professor) | `docs/tabela_producoes.py` |
+| Gramática da Sessão  | `docs/tabela_producoes.py` |
 | Slides (Árvore de Sintaxe + Esquema de Tradução) | `batalha_naval_traducao.pptx` |
 | Execução do código | `python main.py` |
 
