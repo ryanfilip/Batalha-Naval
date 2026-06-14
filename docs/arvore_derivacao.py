@@ -1,194 +1,202 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 docs/arvore_derivacao.py
 ─────────────────────────
-Exibe árvores de derivação e árvores anotadas (com valores semânticos)
-para os principais comandos da linguagem Batalha Naval PLY.
+Árvores de derivação baseadas na gramática elaborada com o professor.
 
-Requisito do trabalho:
-  d. Mostrar um exemplo de uma árvore de derivação e de uma árvore
-     de derivação anotada de uma sentença aceita pela linguagem.
-
-ATUALIZAÇÃO:
-  - Modo CLASSICO removido. "INICIAR CLASSICO PVC" → "INICIAR PVC"
-    (start_cmd → START player_mode, sem game_mode)
-  - Adicionada a "Árvore da Sessão", baseada na gramática elaborada
-    com o professor:
-        atirar_seq → SHOOT COORDINATE resultado
-        resultado  → HIT atirar_seq   (Acerto → Atirar, recursivo)
-                   | MISS              (Água → fim do turno)
-    que é exatamente a regra de Sequência de Acertos (modo único do jogo).
+Gramática:
+  CMD        -> Iniciar  Player_mode
+  Iniciar    -> Posicionar | Ajuda | Reiniciar | Sair
+  Player_mode-> PVP | PVC | Solo
+  Posicionar -> Ship Posicionar | Aleatorio
+  Aleatorio  -> Atirar | Tabuleiro | Reiniciar | Sair
+  Ship       -> Coordenada Orientacao
+  Coordenada -> id
+  Orientacao -> Horizontal | Vertical
+  Atirar     -> Alvo
+  Alvo       -> Acerto | Agua
+  Acerto     -> Atirar | Tabuleiro | Reiniciar | Sair
+  Ship       -> Porta_Avioes | Couracado | Destroier | Submarino | Patrulha
+  Tabuleiro  -> Atirar | Reiniciar | Sair
+  Ajuda      -> Iniciar | Reiniciar | Sair
 """
 
 
 # ════════════════════════════════════════════════════════════════
-# Estrutura de árvore (dicionário simples)
+# Utilitário de impressão de árvore
 # ════════════════════════════════════════════════════════════════
 
-def node(label: str, *children) -> dict:
-    return {'label': label, 'children': list(children)}
+def node(label, *children):
+    return {"label": label, "children": list(children)}
 
-def leaf(label: str) -> dict:
-    return {'label': label, 'children': []}
+def leaf(label):
+    return {"label": label, "children": []}
 
-
-def print_tree(n: dict, prefix: str = "", is_last: bool = True) -> None:
+def print_tree(n, prefix="", is_last=True):
     connector = "└── " if is_last else "├── "
-    print(prefix + connector + n['label'])
-    children = n.get('children', [])
+    print(prefix + connector + n["label"])
+    children = n.get("children", [])
     for i, child in enumerate(children):
         ext = "    " if is_last else "│   "
         print_tree(child, prefix + ext, i == len(children) - 1)
 
 
 # ════════════════════════════════════════════════════════════════
-# ÁRVORES DE DERIVAÇÃO — gramática POR COMANDO (sem anotação)
+# ÁRVORE 1
+# Sentença: "INICIAR PVC"  seguido de  "POSICIONAR PORTA_AVIOES B4 HORIZONTAL"
+# Derivação:
+#   CMD -> Iniciar Player_mode
+#   Iniciar -> Posicionar
+#   Posicionar -> Ship Posicionar
+#   Ship -> Porta_Avioes  +  Ship -> Coordenada Orientacao
+#   Coordenada -> id ('B4')  |  Orientacao -> Horizontal
+#   Player_mode -> PVC
 # ════════════════════════════════════════════════════════════════
 
-# ── Sentença: "ATIRAR B4" ─────────────────────────────────────
-tree_atirar = node(
-    "command",
-    node("shoot_cmd",
-         leaf("SHOOT"),
-         leaf("COORDINATE  'B4'"),
-    )
+tree1 = node("CMD",
+    node("Iniciar",
+        node("Posicionar",
+            node("Ship",
+                node("Ship",
+                    leaf("Porta_Avioes")
+                ),
+                node("Coordenada",
+                    leaf("id  'B4'")
+                ),
+                node("Orientacao",
+                    leaf("Horizontal")
+                ),
+            ),
+            node("Posicionar",
+                leaf("Aleatorio  ← demais navios")
+            ),
+        )
+    ),
+    node("Player_mode",
+        leaf("PVC")
+    ),
 )
-
-# ── Sentença: "POSICIONAR PORTA_AVIOES A1 HORIZONTAL" ─────────
-tree_posicionar = node(
-    "command",
-    node("place_cmd",
-         leaf("PLACE"),
-         node("ship_type",
-              leaf("CARRIER  ← 'PORTA_AVIOES'"),
-         ),
-         leaf("COORDINATE  'A1'"),
-         node("orientation",
-              leaf("HORIZONTAL"),
-         ),
-    )
-)
-
-# ── Sentença: "INICIAR PVC"  (sem game_mode — CLASSICO removido) ──
-tree_iniciar = node(
-    "command",
-    node("start_cmd",
-         leaf("START"),
-         node("player_mode",
-              leaf("PVC"),
-         ),
-    )
-)
-
-# ── Sentença: "POSICIONAR SUBMARINO E5 VERTICAL" ──────────────
-tree_submarino = node(
-    "command",
-    node("place_cmd",
-         leaf("PLACE"),
-         node("ship_type",
-              leaf("SUBMARINE  ← 'SUBMARINO'"),
-         ),
-         leaf("COORDINATE  'E5'"),
-         node("orientation",
-              leaf("VERTICAL"),
-         ),
-    )
-)
-
 
 # ════════════════════════════════════════════════════════════════
-# ÁRVORES ANOTADAS (com valores semânticos em cada nó)
-# ════════════════════════════════════════════════════════════════
-
-# ── Anotada: "ATIRAR B4" ──────────────────────────────────────
-tree_atirar_anot = node(
-    "command  { p[0] = ('shoot', 'B4') }",
-    node("shoot_cmd  { p[0] = ('shoot', 'B4');  chama: sem_shoot('B4') }",
-         leaf("SHOOT       { p[1] = 'SHOOT'  (token SHOOT, valor 'ATIRAR') }"),
-         leaf("COORDINATE  { p[2] = 'B4' }"),
-    )
-)
-
-# ── Anotada: "POSICIONAR PORTA_AVIOES A1 HORIZONTAL" ──────────
-tree_posicionar_anot = node(
-    "command  { p[0] = ('place', 'CARRIER', 'A1', 'HORIZONTAL') }",
-    node("place_cmd  { p[0] = ('place','CARRIER','A1','HORIZONTAL');\n"
-         "             │         chama: sem_place('CARRIER','A1','HORIZONTAL') }",
-         leaf("PLACE      { p[1] = 'PLACE' }"),
-         node("ship_type  { p[0] = 'CARRIER' }",
-              leaf("CARRIER    { p[1] = 'CARRIER'  ← lexema 'PORTA_AVIOES' }"),
-         ),
-         leaf("COORDINATE { p[3] = 'A1' }"),
-         node("orientation { p[0] = 'HORIZONTAL' }",
-              leaf("HORIZONTAL { p[4] = 'HORIZONTAL' }"),
-         ),
-    )
-)
-
-# ── Anotada: "INICIAR PVP"  (sem game_mode) ───────────────────
-tree_iniciar_anot = node(
-    "command  { p[0] = ('start', 'PVP') }",
-    node("start_cmd  { p[0] = ('start','PVP');\n"
-         "             │         chama: sem_start('PVP') }",
-         leaf("START        { p[1] = 'START' }"),
-         node("player_mode  { p[0] = 'PVP' }",
-              leaf("PVP          { p[2] = 'PVP' }"),
-         ),
-    )
-)
-
-
-# ════════════════════════════════════════════════════════════════
-# ÁRVORE DA SESSÃO — gramática elaborada com o professor
-# ════════════════════════════════════════════════════════════════
-#
-#   atirar_seq → SHOOT COORDINATE resultado
-#   resultado  → HIT atirar_seq      (Acerto → Atirar, RECURSIVO)
-#              | MISS                 (Água → fim do turno)
-#
-# Equivalente ao original:
+# ÁRVORE 2
+# Sentença: "ATIRAR B4" com ACERTO, depois "ATIRAR C5" com ÁGUA
+# Derivação:
+#   Aleatorio -> Atirar
 #   Atirar -> Alvo
-#   Alvo   -> Acerto | Água
-#   Acerto -> Atirar | ...
-#
-# Exemplo: o jogador joga "ATIRAR B4" (ACERTO) e em seguida "ATIRAR C5"
-# (ÁGUA). A recursão em `resultado → HIT atirar_seq` é o que garante o
-# novo tiro após o acerto — ou seja, é a Sequência de Acertos
-# representada DIRETAMENTE na gramática.
-#
+#   Alvo -> Acerto  (HIT — acerto garante novo tiro)
+#   Acerto -> Atirar  (recursão da Sequência de Acertos)
+#   Atirar -> Alvo
+#   Alvo -> Agua    (MISS — passa a vez)
+# ════════════════════════════════════════════════════════════════
 
-tree_sessao_atirar = node(
-    "atirar_seq   (1ª jogada: ATIRAR B4)",
-    leaf("SHOOT"),
-    leaf("COORDINATE  'B4'"),
-    node("resultado",
-         leaf("HIT   ← acerto em B4"),
-         node("atirar_seq   (2ª jogada: ATIRAR C5)",
-              leaf("SHOOT"),
-              leaf("COORDINATE  'C5'"),
-              node("resultado",
-                   leaf("MISS  ← água em C5  →  fim do turno"),
-              ),
-         ),
+tree2 = node("Aleatorio",
+    node("Atirar  'B4'",
+        node("Alvo",
+            node("Acerto  ← HIT",
+                node("Atirar  'C5'  ← novo tiro (Sequência)",
+                    node("Alvo",
+                        leaf("Agua  ← MISS  -> passa a vez")
+                    )
+                )
+            )
+        )
     )
 )
 
-# ── Versão anotada da árvore da sessão ────────────────────────
-tree_sessao_atirar_anot = node(
-    "atirar_seq  { cod = 'sem_shoot(B4)' || cod(resultado) }",
-    leaf("SHOOT       { lex = 'ATIRAR' }"),
-    leaf("COORDINATE  { lex = 'B4' }"),
-    node("resultado  { resultado = HIT → cod = cod(atirar_seq2) }",
-         leaf("HIT   { sem_shoot('B4') retornou HIT;  G.consec += 1 }"),
-         node("atirar_seq2  { cod = 'sem_shoot(C5)' || cod(resultado2) }",
-              leaf("SHOOT       { lex = 'ATIRAR' }"),
-              leaf("COORDINATE  { lex = 'C5' }"),
-              node("resultado2  { resultado2 = MISS → fim da recursão }",
-                   leaf("MISS  { sem_shoot('C5') retornou MISS;  G.switch() }"),
-              ),
-         ),
+# ════════════════════════════════════════════════════════════════
+# ÁRVORE 3
+# Sentença: "INICIAR PVP" seguido de posicionamento aleatório e tiros
+# Derivação completa de uma partida curta
+# ════════════════════════════════════════════════════════════════
+
+tree3 = node("CMD",
+    node("Iniciar",
+        node("Posicionar",
+            node("Aleatorio",
+                node("Atirar  'E5'",
+                    node("Alvo",
+                        node("Acerto  ← HIT",
+                            node("Atirar  'E6'  ← Sequência",
+                                node("Alvo",
+                                    leaf("Agua  ← MISS  -> vez do oponente")
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    ),
+    node("Player_mode",
+        leaf("PVP")
+    ),
+)
+
+# ════════════════════════════════════════════════════════════════
+# ÁRVORE 4
+# Sentença: "INICIAR SOLO"  +  "AJUDA"  seguido de reiniciar
+# Mostra o ramo Ajuda da gramática
+# ════════════════════════════════════════════════════════════════
+
+tree4 = node("CMD",
+    node("Iniciar",
+        node("Ajuda",
+            node("Reiniciar  ← volta ao início")
+        )
+    ),
+    node("Player_mode",
+        leaf("Solo")
+    ),
+)
+
+# ════════════════════════════════════════════════════════════════
+# ÁRVORE 5 — Anotada
+# Sentença: "ATIRAR B4" (acerto) -> "ATIRAR C5" (água)
+# Mostra os atributos semânticos em cada nó
+# ════════════════════════════════════════════════════════════════
+
+tree5_anot = node("Aleatorio  { sem_shoot(Coordenada.lex) }",
+    node("Atirar  'B4'  { Alvo.coord = 'B4' }",
+        node("Alvo  { resultado = HIT }",
+            node("Acerto  { G.consec = 1 }",
+                node("Atirar  'C5'  { Alvo.coord = 'C5' }  ← Sequência de Acertos",
+                    node("Alvo  { resultado = MISS }",
+                        leaf("Agua  { G.switch()  -> passa a vez }")
+                    )
+                )
+            )
+        )
     )
+)
+
+
+tree6_anot = node("CMD  { sem_start(Player_mode.val) }",
+    node("Iniciar  { sem_place(Ship.val, Coordenada.lex, Orientacao.val) }",
+        node("Posicionar  { Ship.val = ('B4','HORIZONTAL') }",
+            node("Ship  { Ship.val = (Coordenada.lex, Orientacao.val) }",
+                node("Ship  { Ship.val = 'PORTA_AVIOES' }",
+                    leaf("Porta_Avioes  { token.lex = 'PORTA_AVIOES' }")
+                ),
+                node("Coordenada  { Coordenada.lex = 'B4' }",
+                    leaf("id  'B4'")
+                ),
+                node("Orientacao  { Orientacao.val = 'HORIZONTAL' }",
+                    leaf("Horizontal")
+                ),
+            ),
+            node("Posicionar -> Aleatorio  { sem_random() }",
+                node("Aleatorio -> Atirar  { sem_shoot('E5') }",
+                    node("Alvo  { resultado = HIT }",
+                        node("Acerto  { G.consec = 1 }",
+                            leaf("Atirar  'F5'  ← Sequência de Acertos")
+                        )
+                    )
+                )
+            )
+        )
+    ),
+    node("Player_mode  { Player_mode.val = 'PVC' }",
+        leaf("PVC  { token.lex = 'PVC' }")
+    ),
 )
 
 
@@ -196,62 +204,49 @@ tree_sessao_atirar_anot = node(
 # Main
 # ════════════════════════════════════════════════════════════════
 
-DERIVATION_TREES = [
-    ("ATIRAR B4",                              tree_atirar),
-    ("POSICIONAR PORTA_AVIOES A1 HORIZONTAL",  tree_posicionar),
-    ("INICIAR PVC",                            tree_iniciar),
-    ("POSICIONAR SUBMARINO E5 VERTICAL",       tree_submarino),
-]
+ARVORES = [
+    ("INICIAR PVC  +  POSICIONAR PORTA_AVIOES B4 HORIZONTAL",
+     tree1,
+     "Árvore de Derivação"),
 
-ANNOTATED_TREES = [
-    ("ATIRAR B4",                              tree_atirar_anot),
-    ("POSICIONAR PORTA_AVIOES A1 HORIZONTAL",  tree_posicionar_anot),
-    ("INICIAR PVP",                            tree_iniciar_anot),
-]
+    ("ATIRAR B4 (acerto)  ->  ATIRAR C5 (água)",
+     tree2,
+     "Árvore de Derivação — Sequência de Acertos"),
 
-SESSION_TREES = [
-    ("Sessão: ATIRAR B4 (acerto) → ATIRAR C5 (água)",       tree_sessao_atirar),
-    ("Sessão (anotada)",                                    tree_sessao_atirar_anot),
+    ("INICIAR PVP  +  ALEATORIO  +  ATIRAR E5 (acerto) -> ATIRAR E6 (água)",
+     tree3,
+     "Árvore de Derivação — Partida Completa"),
+
+    ("INICIAR SOLO  +  AJUDA  +  REINICIAR",
+     tree4,
+     "Árvore de Derivação — Ramo Ajuda"),
+
+    ("ATIRAR B4 (acerto)  ->  ATIRAR C5 (água)",
+     tree5_anot,
+     "Árvore Anotada — Sequência de Acertos"),
+
+    ("INICIAR PVC  +  POSICIONAR  +  ATIRAR E5 (acerto)",
+     tree6_anot,
+     "Árvore Anotada — Partida Completa"),
 ]
 
 
 def main():
     sep = "═" * 72
-
     print(f"\n{sep}")
     print("  BATALHA NAVAL PLY  —  Árvores de Derivação")
-    print("  Trabalho P2  —  Compiladores 2026/1")
+    print("  Gramática elaborada com o professor  |  Compiladores 2026/1")
     print(sep)
 
-    print("\n\n  ┌─── PARTE 1: Árvores de Derivação (gramática por comando) ──┐\n")
-    for cmd, tree in DERIVATION_TREES:
-        print(f"  Sentença: \"{cmd}\"")
-        print("  " + "─" * 60)
-        print_tree(tree, "  ")
-        print()
-
-    print(f"\n{sep}")
-    print("\n\n  ┌─── PARTE 2: Árvores de Derivação Anotadas ─────────────────┐\n")
-    for cmd, tree in ANNOTATED_TREES:
-        print(f"  Sentença: \"{cmd}\"")
-        print("  " + "─" * 60)
-        print_tree(tree, "  ")
-        print()
-
-    print(f"\n{sep}")
-    print("\n\n  ┌─── PARTE 3: Árvore da Sessão — Sequência de Acertos ───────┐\n")
-    print("  Gramática (elaborada com o professor):")
-    print("    atirar_seq → SHOOT COORDINATE resultado")
-    print("    resultado  → HIT atirar_seq   (Acerto → Atirar, recursivo)")
-    print("               | MISS              (Água → fim do turno)\n")
-    for cmd, tree in SESSION_TREES:
-        print(f"  {cmd}")
-        print("  " + "─" * 60)
-        print_tree(tree, "  ")
+    for sentenca, arvore, tipo in ARVORES:
+        print(f"\n  [{tipo}]")
+        print(f"  Sentença: \"{sentenca}\"")
+        print("  " + "─" * 68)
+        print_tree(arvore, "  ")
         print()
 
     input(f"\n{sep}\n  Pressione Enter para sair...")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
