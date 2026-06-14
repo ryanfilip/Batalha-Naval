@@ -9,9 +9,6 @@ linha digitada). Para o fluxo completo de uma partida (a "Gramática
 da Sessão", elaborada com o professor — onde Acerto leva de volta a
 Atirar), veja docs/tabela_producoes.py e docs/arvore_derivacao.py.
 
-ATUALIZAÇÃO: removido o não-terminal `game_mode` (CLASSICO/SEQUENCIA).
-`start_cmd` agora é apenas `START player_mode`.
-
 command     → shoot_cmd
             | place_cmd
             | start_cmd

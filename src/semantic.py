@@ -12,20 +12,6 @@ Funções exportadas:
   sem_shoot(coord)                 ← p_shoot_cmd
   sem_board()                      ← p_board_cmd
   sem_help()                       ← p_help_cmd
-
-ATUALIZAÇÕES:
-  - sem_start(gtype): um único parâmetro (sem game_mode/CLASSICO).
-  - sem_shoot: acerto SEMPRE garante novo tiro (Sequência de Acertos é
-    o único modo). Corresponde à "Gramática da Sessão":
-        atirar_seq → SHOOT COORDINATE resultado
-        resultado  → HIT atirar_seq   (Acerto → Atirar, recursivo)
-                   | MISS              (Água → fim do turno)
-  - SOLO: o jogador sempre atira na grade do oponente (G.opponent),
-    inclusive no modo SOLO — onde existe uma grade "CPU" gerada
-    automaticamente, mas que NUNCA atira de volta.
-  - sem_board / TABULEIRO: exibe os dois tabuleiros lado a lado.
-    Após cada tiro (sem_shoot), os dois tabuleiros também são
-    exibidos automaticamente.
 """
 
 import random

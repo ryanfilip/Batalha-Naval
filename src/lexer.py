@@ -4,11 +4,6 @@ lexer.py  —  Analisador Léxico PLY (Batalha Naval)
 Define os TOKENS da linguagem de comandos do jogo e as
 EXPRESSÕES REGULARES que os reconhecem.
 
-ATUALIZAÇÃO: os tokens CLASSIC ('CLASSICO') e SEQUENCE ('SEQUENCIA')
-foram REMOVIDOS. O jogo agora tem um único modo — Sequência de
-Acertos — embutido diretamente na gramática da sessão (ver
-docs/tabela_producoes.py, seção "Gramática da Sessão":
-resultado → HIT atirar_seq | MISS).
 
 Tokens da linguagem:
 ┌─────────────────┬────────────────────┬──────────────────────────────────┐

@@ -8,13 +8,6 @@ Execute com:
     python -m pytest tests/ -v
   ou:
     python tests/test_batalha_naval.py
-
-ATUALIZAÇÕES:
-  - Removidos testes de CLASSICO/SEQUENCIA (tokens/gramática eliminados).
-  - start_cmd agora é START player_mode (1 argumento).
-  - SOLO: jogador atira na grade CPU (que nunca atira de volta).
-  - Adicionados testes de Sequência de Acertos (acerto → novo tiro).
-  - Adicionados testes de exibição lado a lado (render_lines).
 """
 
 import sys

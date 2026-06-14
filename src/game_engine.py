@@ -10,15 +10,6 @@ Responsabilidade:
   - GameState : controla fases (IDLE → SETUP → PLAYING → DONE)
 
 Não contém lógica de compilador (lexer/parser).
-
-ATUALIZAÇÕES:
-  - Modo CLASSICO removido. Único modo: Sequência de Acertos (acerto
-    garante novo tiro). GameState não possui mais o atributo `mode`.
-  - Modo SOLO agora inclui uma grade "CPU" (gerada automaticamente),
-    para o jogador atirar nela. A CPU nunca atira de volta.
-  - Adicionados Board.render_lines / render_shots_lines e a função
-    display_side_by_side(), usados para mostrar os dois tabuleiros
-    lado a lado a cada tiro.
 """
 
 import random
