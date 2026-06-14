@@ -171,23 +171,6 @@ utilitario  → BOARD | RESTART | QUIT | HELP
 | Slides (Árvore de Sintaxe + Esquema de Tradução) | `batalha_naval_traducao.pptx` |
 | Execução do código | `python main.py` |
 
----
-
-## 📝 Observações sobre IA
-
-Este projeto utilizou Claude (Anthropic) como auxílio.
-
-**Prompts utilizados:**
-- *"Quero fazer um compilador que simule uma batalha naval em PLY"*
-- *"Organize em repositório similar ao jean-flp/mod_parse_generator"*
-- *"Eliminar modo clássico, manter só Sequência de Acertos"*
-- *"Corrigir modo SOLO para atirar na grade do oponente"*
-- *"Exibir os dois tabuleiros lado a lado após cada tiro"*
-
-**Alterações realizadas pelos autores:**
-- Gramática da Sessão elaborada com o professor
-- Definição do fluxo `resultado → HIT atirar_seq | MISS`
-- Testes, ajustes e validação do comportamento do jogo
 
 ---
 
