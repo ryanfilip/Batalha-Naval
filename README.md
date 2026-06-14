@@ -124,7 +124,7 @@ python -m pytest tests/ -v
 
 ### Análise Léxica (`src/lexer.py`)
 
-- **20 tokens** (removidos `CLASSIC`/`SEQUENCE` com a extinção do modo Clássico)
+- **20 tokens** 
 - Expressão regular principal: `[A-Za-z_][A-Za-z0-9_]*`
   - Detecta coordenadas via `[A-J](10|[1-9])`
   - Mapeia palavras reservadas via `RESERVED`
