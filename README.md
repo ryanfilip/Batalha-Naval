@@ -173,7 +173,77 @@ utilitario  → BOARD | RESTART | QUIT | HELP
 
 
 ---
+### Prompts utilizados para fazer o trabalho
 
+#### Prompt 1
+
+Estou desenvolvendo uma especificação léxica e sintática para um jogo de Batalha Naval usando PLY em Python
+
+Pensei que o escopo dos comandos podem ser:
+
+posicionar B2 (coordenada do tabuleiro)
+
+posicionar G7 (coordenada do tabuleiro)
+
+atirar A1 (coordenada do tabuleiro inimigo)
+
+iniciar (inicia o jogo)
+
+reiniciar
+
+Quero que você me ajude a identificar quais tokens precisam existir no analisador léxico e explique o papel de cada um deles. Mostre exemplos de entradas e quais tokens deveriam ser produzidos.
+
+---
+
+#### Prompt 2
+
+Atue como um tutor de Compiladores
+
+Estou desenvolvendo uma especificação léxica e sintática para um jogo de Batalha Naval usando PLY em Python
+
+quero orientações por etapas:
+
+1 - identificação dos tokens
+
+2 - criação das expressões regulares
+
+3 - tratamento de erros
+
+4 - testes do lexer
+
+Ao final de cada etapa, proponha uma atividade para eu implementar sozinho antes de continuar
+
+---
+
+#### Prompt 3
+
+Explique como construir as expressões regulares para cada token
+
+---
+
+#### Prompt 4
+
+Explicar o papel de cada função do PLY
+
+---
+
+#### Prompt 5
+
+Tenho o modo de jogo jogador x jogador. Me explique quais alterações devo fazer para fazer modo de jogo jogador contra o computador e sozinho
+
+---
+
+#### Prompt 6
+
+Quero que você formate em um formato apresentável no terminal a tabela de tokens, regras de análise léxica, regras gramaticais, tabelas de produções e ações semânticas
+
+---
+
+#### Prompt 7
+
+Quero que você formate os as árvores de derivação em um formato apresentável no terminal
+
+---
 ## 👥 Autores
 
 Ryan Filipe de Mendonça Borges
