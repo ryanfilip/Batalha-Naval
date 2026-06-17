@@ -13,8 +13,6 @@ Fluxo:
   [Semântica] src/semantic.py    → execução da ação de jogo
       ↓
   [Motor]  src/game_engine.py    → atualização do estado
-
-ATUALIZAÇÃO: prompt de boas-vindas atualizado — sem modos CLASSICO/SEQUENCIA.
 """
 
 import sys

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 game_engine.py
 ──────────────
@@ -9,7 +7,6 @@ Responsabilidade:
   - Board   : representa a grade 10×10 de um jogador
   - GameState : controla fases (IDLE → SETUP → PLAYING → DONE)
 
-Não contém lógica de compilador (lexer/parser).
 """
 
 import random
